@@ -22,10 +22,10 @@ queue = asyncio.Queue()
 running = False
 
 # Define the paths to the images of the download buttons and GoFullPage button
-download_button_path = "C:/Users/MCBat/OneDrive/Desktop/cheggbot/download.png"
-tripledot_redownload_button_path = "C:/Users/MCBat/OneDrive/Desktop/cheggbot/tripledot_redownload.png"
-download_redownload_button_path = "C:/Users/MCBat/OneDrive/Desktop/cheggbot/download_redownload.png"
-go_full_page_button_path = "C:/Users/MCBat/OneDrive/Desktop/cheggbot/GoFullPage.png"
+download_button_path = "Define_Your_Path"
+tripledot_redownload_button_path = "Define_Your_Path"
+download_redownload_button_path = "Define_Your_Path"
+go_full_page_button_path = "Define_Your_Path"
 
 # Log when bot has come online
 @client.event
@@ -34,18 +34,18 @@ async def on_ready():
     await process_queue()
 
 # Define the custom emojis
-loading_emoji = '<:Loading2:1240447269313183785>'
-check_emoji = '<:Check:1240449377806319616>'
-uncheck_emoji = '<:Uncheck:1240449376703484004>'
+loading_emoji = 'Add_Your_Emoji'
+check_emoji = 'Add_Your_Emoji'
+uncheck_emoji = 'Add_Your_Emoji'
 
 # Process message with Brainly or CourseHero links
 async def process_message(message):
     if message.author == client.user:
         return
     
-    brainly_channel_id = 1241857920224858163
-    coursehero_channel_id = 1241857214600188035
-    general_channel_id = 1245866164815659123
+    brainly_channel_id = Your_Channel_ID
+    coursehero_channel_id = Your_Channel_ID
+    general_channel_id = Your_Channel_ID
 
     # Process Brainly and CourseHero links based on the channel
     brainly_url_list = re.findall(r'brainly\.com/question/\d+', message.content) if message.channel.id in [brainly_channel_id, general_channel_id] else []
