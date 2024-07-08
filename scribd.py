@@ -62,4 +62,4 @@ class ScribdBot(commands.Bot):
 
 if __name__ == '__main__':
     bot = ScribdBot()
-    bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GvVh8p.mOjqiBuiPYYyjqbwaxKQemrNTwcZd99HrE-ImA')
+    bot.run('Bot_Token')
