@@ -1,7 +1,6 @@
 # Education-Webscraper
 
 # Coursehero + Brainly (How It Works)
-Here's a summary of what the code does, broken down into sections as you requested:
 
 ### Libraries / Dependencies:
 - *os*: Interacts with the operating system.
@@ -63,7 +62,6 @@ Here's a summary of what the code does, broken down into sections as you request
 The bot automates downloading documents from CourseHero and capturing screenshots from Brainly, then converts them to PDFs, uploads them to AWS S3, and returns the PDF links on Discord.
 
 # Numerade
-Here's a summary of what the code does, broken down into sections as you requested:
 
 ### Libraries / Dependencies:
 - *discord*: Interacts with Discord API.
@@ -102,3 +100,31 @@ Here's a summary of what the code does, broken down into sections as you request
 
 The bot automates the process of fetching video answers from Numerade links shared in specific Discord channels and returns the video links in an embedded message.
 Note: This code is based on an existing project that I found and have since fixed, improved, and modified to better meet its needs.
+
+# Scribd
+
+### Libraries / Dependencies:
+- *discord*: Interacts with Discord API.
+- *discord.ext.commands*: Provides commands extension for the Discord bot.
+- *re*: Handles regular expressions.
+
+### Bot Initialization:
+- Creates a Discord bot client with specific intents.
+- Initializes a queue to handle incoming messages.
+
+### Event Handlers:
+- **on_ready**: Logs when the bot is online.
+- **on_message**: Processes incoming messages from Discord channels.
+
+### Message Processing:
+- **on_message**: Identifies Scribd links in messages from allowed channels.
+- Adds a checkmark emoji reaction to indicate the message is being processed.
+- Creates an embedded message with a link to the Scribd document or presentation.
+
+### Error Handling:
+- **on_error**: Logs errors that occur during event processing.
+
+### Running the Bot:
+- Instantiates the *ScribdBot* class and runs the Discord bot using a token.
+
+The bot automates the process of identifying Scribd documents or presentation links shared in specific Discord channels and returns an embedded message with a clickable link to view the content.
