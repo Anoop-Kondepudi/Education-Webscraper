@@ -1,5 +1,13 @@
 # Education-Webscraper
 
+### How it looks on Discord (Frontend):
+![discord](https://github.com/Anoop-Kondepudi/Education-Webscraper/assets/174656579/e0d85288-3eb2-4769-b08e-eb631399ebce)
+
+### How it looks on the Backend:
+![backend](https://github.com/Anoop-Kondepudi/Education-Webscraper/assets/174656579/7f7e0cfb-6c92-489b-a581-935f8d5b2c1f)
+
+(Each gif is 31 seconds long. Try playing them at the same time to get a better understanding of what's happening.)
+
 # Coursehero + Brainly (How It Works)
 
 ### Libraries / Dependencies:
@@ -61,7 +69,7 @@
 
 The bot automates downloading documents from CourseHero and capturing screenshots from Brainly, then converts them to PDFs, uploads them to AWS S3, and returns the PDF links on Discord.
 
-# Numerade
+# Numerade (How It Works)
 
 ### Libraries / Dependencies:
 - *discord*: Interacts with Discord API.
@@ -101,7 +109,7 @@ The bot automates downloading documents from CourseHero and capturing screenshot
 The bot automates the process of fetching video answers from Numerade links shared in specific Discord channels and returns the video links in an embedded message.
 Note: This code is based on an existing project that I found and have since fixed, improved, and modified to better meet its needs.
 
-# Scribd
+# Scribd (How It Works)
 
 ### Libraries / Dependencies:
 - *discord*: Interacts with Discord API.
