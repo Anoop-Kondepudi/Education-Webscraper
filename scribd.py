@@ -8,7 +8,7 @@ intents.message_content = True  # Enable message content intent explicitly
 class ScribdBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='!', intents=intents)
-        self.allowed_channels = [1238373226283929641, 1240006256278638662, 1245866164815659123]  # Update with your channel IDs
+        self.allowed_channels = [Your_Channel_ID, Your_Channel_ID, Your_Channel_ID...]  # Update with your channel IDs
 
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
