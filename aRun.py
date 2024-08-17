@@ -4,7 +4,7 @@ import signal
 
 scripts = [
     "Bartleby.py",
-    "DumbAhhPeople.py",
+    "KindReminder.py",
     "docgen.py",
     "numerade.py",
     "saver.py",
