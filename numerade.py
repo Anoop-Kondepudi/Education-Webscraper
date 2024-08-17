@@ -25,7 +25,7 @@ class NumeradeBot(commands.Bot):
         if message.author == self.user:
             return
 
-        allowed_channels = [Your_Channel_ID, Your_Channel_ID, Your_Channel_ID...]
+        allowed_channels = [1240006256278638662, 1238373245351231509, 1245866164815659123, 1262185849324306612]
         if message.channel.id not in allowed_channels:
             return
 
@@ -42,27 +42,43 @@ class NumeradeBot(commands.Bot):
         while not self.queue.empty():
             author, message, url_list = await self.queue.get()
             for url in url_list:
-                video_link = await self.get_numerade_answer(url)
-                if not video_link:
+                video_links = await self.get_numerade_answer(url)
+                if not video_links:
                     embed = discord.Embed(
                         color=0xFF0000
                     )
                     embed.add_field(name='Error', value='Failed to retrieve video link.', inline=False)
                     await message.channel.send(embed=embed)
                 else:
+                    video_link_main, video_link_backup = video_links
                     embed = discord.Embed(
                         title="Numerade Video Generated!",
                         color=discord.Color.green()
                     )
-                    embed.add_field(name='Video Answer', value=f'[Here]({video_link})', inline=False)
+                    embed.add_field(name='Video Answer', value=f'[Here]({video_link_main}) or [Here]({video_link_backup})', inline=False)
                     embed.add_field(name='Requested Link', value=f'[Here]({url})', inline=False)
-                    embed.set_footer(text=author.display_name, icon_url=author.avatar.url)
-                    await message.channel.send(embed=embed)
+                    
+                    if author.avatar:
+                        embed.set_footer(text=author.display_name, icon_url=author.avatar.url)
+                    else:
+                        embed.set_footer(text=author.display_name)
+                    
+                    retry_count = 0
+                    success = False
+                    while not success and retry_count < 3:
+                        try:
+                            await message.channel.send(embed=embed)
+                            await message.channel.send(f'[||VIDEO||]({video_link_main}) or [||VIDEO||]({video_link_backup})')
+                            success = True
+                        except discord.errors.DiscordServerError as e:
+                            retry_count += 1
+                            print(f"[DEBUG] Retry {retry_count} due to Discord server error: {str(e)}")
+                            await asyncio.sleep(5)  # Wait before retrying
 
-                    # Post the video link directly after the embedded message
-                    await message.channel.send(f'[||VIDEO||]({video_link})')
+                    if not success:
+                        print(f"[DEBUG] Failed to send message after {retry_count} retries.")
 
-            await asyncio.sleep(7)  # Delay before processing the next message
+                await asyncio.sleep(7)  # Delay before processing the next message
 
         self.running = False
 
@@ -73,37 +89,55 @@ class NumeradeBot(commands.Bot):
                 response.raise_for_status()
                 soup = BeautifulSoup(response.text, 'html.parser')
 
-                # Determine which pattern to search for based on the URL structure
-                gif_url = None
-                if '/ask/question/' in link:
-                    gif_url_pattern = re.search(r'https://cdn\.numerade\.com/previews/\S+\.gif', soup.prettify())
-                    if gif_url_pattern:
-                        gif_url = gif_url_pattern.group(0)
-                        video_id = gif_url.split('/')[-1].split('.')[0]
-                        video_url = f'https://cdn.numerade.com/ask_video/{video_id}.mp4'
-                        return video_url
-                elif '/questions/' in link:
-                    # Check for both patterns within '/questions/' URLs
-                    gif_url_pattern_project = re.search(r'https://cdn\.numerade\.com/project-universal/previews/\S+\_large.jpg', soup.prettify())
-                    gif_url_pattern_regular = re.search(r'https://cdn\.numerade\.com/previews/\S+\_large.jpg', soup.prettify())
-                    
-                    if gif_url_pattern_project:
-                        gif_url = gif_url_pattern_project.group(0)
-                        video_id = gif_url.split('/')[-1].split('_')[0]
-                        video_url = f'https://cdn.numerade.com/project-universal/encoded/{video_id}.mp4'
-                        return video_url
-                    elif gif_url_pattern_regular:
-                        gif_url = gif_url_pattern_regular.group(0)
-                        video_id = gif_url.split('/')[-1].split('_')[0]
-                        video_url = f'https://cdn.numerade.com/encoded/{video_id}.mp4'
-                        return video_url
+                # Print the HTML content for debugging
+                print("[DEBUG] HTML content loaded:")
+                print(soup.prettify())
 
-                return None
+                video_id = None
+
+                # Check for the project-universal video URL
+                project_universal_url_pattern = re.search(r'https://cdn\.numerade\.com/project-universal/previews/([a-zA-Z0-9\-]+)_large.jpg', soup.prettify())
+                if project_universal_url_pattern:
+                    video_id = project_universal_url_pattern.group(1)
+                    print(f"[DEBUG] Project-universal URL found: {project_universal_url_pattern.group(0)}")
+                    print(f"[DEBUG] Video ID: {video_id}")
+                    video_url_main = f'https://cdn.numerade.com/project-universal/encoded/{video_id}.mp4'
+                    return video_url_main, None
+
+                # If project-universal is not found, check for other video URLs
+                gif_url_pattern = re.search(r'https://cdn\.numerade\.com/previews/([a-zA-Z0-9\-]+)\.gif', soup.prettify())
+                if gif_url_pattern:
+                    video_id = gif_url_pattern.group(1)
+                    print(f"[DEBUG] GIF URL found: {gif_url_pattern.group(0)}")
+                    print(f"[DEBUG] Video ID: {video_id}")
+                    video_url_main = f'https://cdn.numerade.com/ask_video/{video_id}.mp4'
+                    video_url_backup = f'https://cdn.numerade.com/encoded/{video_id}.mp4'
+                    return video_url_main, video_url_backup
+
+                # Check for regular video URL patterns within '/questions/' URLs
+                gif_url_pattern_regular = re.search(r'https://cdn\.numerade\.com/previews/([a-zA-Z0-9\-]+)_large.jpg', soup.prettify())
+                data_video_url_pattern = soup.find('div', {'data-video-url': True})
+                if gif_url_pattern_regular:
+                    video_id = gif_url_pattern_regular.group(1)
+                    print(f"[DEBUG] Regular GIF URL found: {gif_url_pattern_regular.group(0)}")
+                    print(f"[DEBUG] Video ID: {video_id}")
+                    video_url_main = f'https://cdn.numerade.com/encoded/{video_id}.mp4'
+                    video_url_backup = f'https://cdn.numerade.com/ask_video/{video_id}.mp4'
+                    return video_url_main, video_url_backup
+                elif data_video_url_pattern:
+                    video_id = data_video_url_pattern['data-video-url']
+                    print(f"[DEBUG] Data video URL found: {video_id}")
+                    video_url_main = f'https://cdn.numerade.com/encoded/{video_id}.mp4'
+                    video_url_backup = f'https://cdn.numerade.com/ask_video/{video_id}.mp4'
+                    return video_url_main, video_url_backup
+
+                print("[DEBUG] No matching video URL found")
+                return None, None
         except Exception as e:
             print(f"[DEBUG] Exception occurred for link: {link}, error: {str(e)}")
-            return None
+            return None, None
 
 
 if __name__ == '__main__':
     bot = NumeradeBot()
-    bot.run('Bot_Token')
+    bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')

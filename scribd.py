@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import re
+import requests
+import os
 
 intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent explicitly
@@ -8,7 +10,7 @@ intents.message_content = True  # Enable message content intent explicitly
 class ScribdBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='!', intents=intents)
-        self.allowed_channels = [Your_Channel_ID, Your_Channel_ID, Your_Channel_ID...]  # Update with your channel IDs
+        self.allowed_channels = [1240006256278638662, 1238373226283929641, 1245866164815659123, 1262248765037871136]  # Update with your channel IDs
 
     async def on_ready(self):
         print(f'Logged in as {self.user} (ID: {self.user.id})')
@@ -31,35 +33,39 @@ class ScribdBot(commands.Bot):
 
             for type_, doc_id in scribd_url_list:
                 embed_link = f'https://www.scribd.com/embeds/{doc_id}/content'
-                if type_ == 'document':
-                    embed = discord.Embed(
-                        title="Scribd Document",
-                        description=f"Click [here]({embed_link}) to view the document.",
-                        color=discord.Color.green()
-                    )
-                elif type_ == 'doc':
-                    embed = discord.Embed(
-                        title="Scribd Document",
-                        description=f"Click [here]({embed_link}) to view the document.",
-                        color=discord.Color.green()
-                    )
-                elif type_ == 'presentation':
-                    embed = discord.Embed(
-                        title="Scribd Presentation",
-                        description=f"Click [here]({embed_link}) to view the presentation.",
-                        color=discord.Color.green()
-                    )
+                response = requests.get(embed_link)
+                html_content = response.text
+                
+                file_path = f"{doc_id}.html"
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    file.write(html_content)
+                
+                # Send the HTML file to the channel
+                sent_file = await message.channel.send(file=discord.File(file_path))
+                download_url = sent_file.attachments[0].url
+
+                # Send the embed with view and download links
+                embed = discord.Embed(
+                    title="**Scribd Document Unlocked!**",
+                    description="",
+                    color=discord.Color.green()
+                )
+                embed.add_field(name="Download Your Answer:", value=f"[Download Answer]({download_url})", inline=False)
+                embed.add_field(name="View Your Question:", value=f"[View Answer]({embed_link})", inline=False)
+                
+                if message.author.avatar:
+                    embed.set_footer(text=message.author.display_name, icon_url=message.author.avatar.url)
                 else:
-                    continue
-                
-                # Adding footer with author's display name and avatar
-                embed.set_footer(text=message.author.display_name, icon_url=message.author.avatar.url)
-                
+                    embed.set_footer(text=message.author.display_name)
+
                 await message.channel.send(embed=embed)
+
+                # Clean up the local file
+                os.remove(file_path)
 
     async def on_error(self, event_method, *args, **kwargs):
         print(f'Error occurred in {event_method}: {args[0]}')
 
 if __name__ == '__main__':
     bot = ScribdBot()
-    bot.run('Bot_Token')
+    bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
