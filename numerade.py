@@ -25,7 +25,7 @@ class NumeradeBot(commands.Bot):
         if message.author == self.user:
             return
 
-        allowed_channels = [1240006256278638662, 1238373245351231509, 1245866164815659123, 1262185849324306612]
+        allowed_channels = [1240006256278638662, 1238373245351231509, 1245866164815659123, 1262185849324306612, 1274480071088013464]
         if message.channel.id not in allowed_channels:
             return
 
