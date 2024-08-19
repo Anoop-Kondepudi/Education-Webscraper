@@ -1,0 +1,85 @@
+// ==UserScript==
+// @name         Quizlet (textbook-solutions)
+// @namespace    http://tampermonkey.net/
+// @version      1.2
+// @description  Automatically clicks the "Show all steps" button and removes specified HTML elements on Quizlet pages.
+// @author       Your Name
+// @match        https://quizlet.com/explanations/textbook-solutions*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Function to click the "Show all steps" button
+    function clickShowAllSteps() {
+        const showAllStepsButton = document.querySelector('button[aria-label="Show all steps"]');
+        if (showAllStepsButton) {
+            showAllStepsButton.click();
+            console.log("Clicked 'Show all steps' button.");
+        } else {
+            console.log("'Show all steps' button not found.");
+        }
+    }
+
+    // Function to remove specified HTML elements
+    function removeElements() {
+        const elementsToRemove = [
+            '#suschegg-div',
+            'header.TopNavigationWrapper',
+            'div[data-testid="ExplanationsActions"]',
+            'div.t1o3sbyv',
+            'ul.aghs82u',
+            'div.c1cfso21',
+            'footer.CompactFooter',
+            'aside.s9qhrzz'
+        ];
+
+        elementsToRemove.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.remove();
+                console.log(`Removed element: ${selector}`);
+            } else {
+                console.log(`Element not found: ${selector}`);
+            }
+        });
+    }
+
+    // Function to continuously check and remove the #suschegg-div element if it reappears
+    function monitorSuscheggDiv() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(() => {
+                const suscheggDiv = document.querySelector('#suschegg-div');
+                if (suscheggDiv) {
+                    suscheggDiv.remove();
+                    console.log("Removed reappearing #suschegg-div element.");
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    // Function to remove the final HTML element at the end
+    function removeFinalElement() {
+        const finalElement = document.querySelector('div.b1opuclq');
+        if (finalElement) {
+            finalElement.remove();
+            console.log("Removed final element: div.b1opuclq");
+        } else {
+            console.log("Final element not found: div.b1opuclq");
+        }
+    }
+
+    // Execute the functions in order
+    clickShowAllSteps();
+    removeElements();
+    monitorSuscheggDiv();
+
+    // Remove the final element after everything else
+    setTimeout(removeFinalElement, 3000); // Adjust timeout as needed
+})();

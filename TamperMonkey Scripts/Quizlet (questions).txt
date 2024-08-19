@@ -1,0 +1,112 @@
+// ==UserScript==
+// @name         Quizlet (questions)
+// @namespace    http://tampermonkey.net/
+// @version      1.3
+// @description  Automatically clicks the "Show all steps" button, removes specified HTML elements on Quizlet question pages, and continuously monitors and removes the #suschegg-div element if it reappears. It also clicks an additional button at the same stage.
+// @author       Your Name
+// @match        https://quizlet.com/explanations/questions*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Function to continuously monitor and remove the #suschegg-div element
+    function monitorSuscheggDiv() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(() => {
+                const suscheggDiv = document.querySelector('#suschegg-div');
+                if (suscheggDiv) {
+                    suscheggDiv.remove();
+                    console.log("Removed reappearing #suschegg-div element.");
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    // Function to remove specified HTML elements
+    function removeElements() {
+        const elementsToRemove = [
+            '#__next > header',
+            '#__next > div.m1nn3s6i > div > main > div > div > div > div.wwhvwas > main > div > div > div > div.t1o3sbyv',
+            '#__next > div.m1nn3s6i > div > main > div > div > div > ul',
+            '#__next > div.m1nn3s6i > div > main > div > div > div > div.wwhvwas > main > div > section:nth-child(2)',
+            '#__next > div.m1nn3s6i > div > main > div > div > div > div.wwhvwas > main > div > section',
+            '#__next > div.m1nn3s6i > div > footer',
+            '#__next > div.m1nn3s6i > div > main > div > div > div > div.c1cfso21',
+            '#__next > div.m1nn3s6i > aside'
+        ];
+
+        elementsToRemove.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.remove();
+                console.log(`Removed element: ${selector}`);
+            } else {
+                console.log(`Element not found: ${selector}`);
+            }
+        });
+    }
+
+    // Function to click the "Show all steps" button based on the span text content
+    function clickShowAllStepsButton() {
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            const span = button.querySelector('span');
+            if (span && span.textContent.trim() === 'Show all steps') {
+                button.click();
+                console.log("Clicked 'Show all steps' button.");
+            }
+        });
+    }
+
+    // Function to click the additional button
+    function clickAdditionalButton() {
+        const additionalButton = document.querySelector('#__next > div.m1nn3s6i > div > main > div > div > div > div > main > div > div > div > div > div:nth-child(3) > div > div.b1opuclq > div > div.c19lz1jp > div > div > button');
+        if (additionalButton) {
+            additionalButton.click();
+            console.log("Clicked additional button.");
+        } else {
+            console.log("Additional button not found.");
+        }
+    }
+
+    // Function to remove the additional element after button is pressed
+    function removeAdditionalElement() {
+        const additionalElement = document.querySelector('#__next > div.m1nn3s6i > div > main > div > div > div > div > main > div > div > div > ul');
+        if (additionalElement) {
+            additionalElement.remove();
+            console.log("Removed additional element: ul in main div.");
+        } else {
+            console.log("Additional element not found: ul in main div.");
+        }
+    }
+
+    // Function to remove the final HTML element after everything else
+    function removeFinalElement() {
+        const finalElement = document.querySelector('#__next > div.m1nn3s6i > div > main > div > div > div > div.wwhvwas > main > div > div > div > div > div:nth-child(2) > div > div.no-navigation.b1opuclq');
+        if (finalElement) {
+            finalElement.remove();
+            console.log("Removed final element: div.no-navigation.b1opuclq");
+        } else {
+            console.log("Final element not found: div.no-navigation.b1opuclq");
+        }
+    }
+
+    // Execute the functions in order
+    monitorSuscheggDiv(); // Continuously monitor and remove #suschegg-div
+    removeElements(); // Remove the specified elements
+
+    // Click the buttons and remove the additional and final elements
+    clickShowAllStepsButton(); // Click the "Show all steps" button
+    clickAdditionalButton(); // Click the additional button
+    setTimeout(() => {
+        removeAdditionalElement(); // Remove the additional element after button is pressed
+        removeFinalElement(); // Remove the final element
+    }, 3000); // Adjust the timeout as needed
+})();

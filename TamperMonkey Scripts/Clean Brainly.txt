@@ -1,0 +1,40 @@
+// ==UserScript==
+// @name         Clean Brainly
+// @description  Formats Brainly pages nicely
+// @version      1.0
+// @author       yourname
+// @match        https://*.brainly.com/*
+// @icon         https://www.google.com/s2/favicons?domain=brainly.com
+// @namespace    https://github.com/yourgithub/cleanbrainly
+// @license      MIT
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // Function to remove an element if it exists
+    function removeElement(selector) {
+        let element = document.querySelector(selector);
+        if (element) {
+            element.remove();
+        }
+    }
+
+    // Wait for the document to fully load
+    window.addEventListener('load', function () {
+        // Remove elements after a slight delay to ensure they are fully loaded
+        setTimeout(function () {
+            // Remove specified elements
+            removeElement('div._2iPkSbQ1H9jKlbjT_EliAD[data-testid="looking_for_more_banner"]');
+            removeElement('div[data-testid="newest_questions_advanced_module_id"]');
+            removeElement('div[data-testid="nearest_questions_navigation_module_id"]');
+            removeElement('div.sg-flex.sg-flex--full-width.sg-flex--column.sg-space-y-m.brn-ads-full-height');
+            removeElement('div[data-testid="ad_rightrail_bottom_module_id"].sg-flex.sg-flex--full-height.sg-flex--column.sg-flex--margin-top-s');
+            removeElement('div._1s3Z7Tc8q9IlXAaZGP6oi');
+            removeElement('div[data-testid="footer_module_id"].js-page-footer');
+            removeElement('div[data-testid="header_module_id"]._2gib4OwsY0_rrHyf_t1bLo.js-ads-top-offset-element');
+        }, 4000); // Adjust this delay if necessary
+    });
+
+})();

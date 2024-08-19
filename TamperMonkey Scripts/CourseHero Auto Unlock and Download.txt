@@ -1,0 +1,39 @@
+// ==UserScript==
+// @name         CourseHero Auto Unlock and Download
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Automatically unlock and download documents on CourseHero
+// @author       You
+// @match        https://www.coursehero.com/file/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Selectors for the unlock button and the download button
+    const unlockButtonSelector = '#block_documentHeader > div > div > div.tw-flex.sm\\:tw-flex-col.md\\:tw-flex-row.tw-items-center.tw-justify-center.lg\\:tw-justify-between > div.tw-min-w-full.md\\:tw-min-w-\\[264px\\].sm\\:tw-mt-6.md\\:tw-mt-0.tw-ml-auto > a';
+    const downloadButtonSelector = '#block_documentHeader > div > div > div.tw-flex.sm\\:tw-flex-col.md\\:tw-flex-row.tw-items-center.tw-justify-center.lg\\:tw-justify-between > div.tw-min-w-full.md\\:tw-min-w-\\[264px\\].sm\\:tw-mt-6.md\\:tw-mt-0.tw-ml-auto > a > span';
+
+    // Function to wait for an element to appear in the DOM
+    function waitForElement(selector, callback) {
+        const element = document.querySelector(selector);
+        if (element) {
+            callback(element);
+        } else {
+            setTimeout(() => waitForElement(selector, callback), 100);
+        }
+    }
+
+    // Click the unlock button
+    waitForElement(unlockButtonSelector, (unlockButton) => {
+        console.log('Unlock button found:', unlockButton);
+        unlockButton.click();
+
+        // Wait for the download button to appear and click it
+        waitForElement(downloadButtonSelector, (downloadButton) => {
+            console.log('Download button found:', downloadButton);
+            downloadButton.click();
+        });
+    });
+})();

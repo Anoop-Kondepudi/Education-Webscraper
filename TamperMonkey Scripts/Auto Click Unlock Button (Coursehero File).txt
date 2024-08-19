@@ -1,0 +1,33 @@
+// ==UserScript==
+// @name         Auto Click Unlock Button (Coursehero File)
+// @namespace    http://tampermonkey.net/
+// @version      0.5
+// @description  Automatically click the unlock button on CourseHero student-questions pages.
+// @author       YourName
+// @match        https://www.coursehero.com/student-questions/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Function to click the unlock button
+    function clickUnlockButton() {
+        // Select the <a> element using the provided CSS selector
+        var unlockLink = document.querySelector('#block_ssi\\:component\\:SsiQuestionLanding > div > div.tw-hidden.md\\:tw-block.tw-mb-\\[36px\\].tw-z-50.tw-sticky > div > div > div.tw-flex.tw-flex-col.tw-justify-between > a');
+
+        if (unlockLink) {
+            console.log('Unlock link found. Clicking...');
+            unlockLink.click();
+        } else {
+            console.log('Unlock link not found.');
+        }
+    }
+
+    // Wait for the DOM to fully load
+    window.addEventListener('load', function() {
+        // Execute the click function after a short delay
+        setTimeout(clickUnlockButton, 3000); // Adjust delay as needed
+    });
+
+})();

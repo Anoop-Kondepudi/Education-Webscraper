@@ -1,0 +1,64 @@
+// ==UserScript==
+// @name         CourseHero Reveal All Parts, Answers, and Steps
+// @namespace    http://tampermonkey.net/
+// @version      1.7
+// @description  Automatically reveal all parts, answers, and steps in CourseHero textbook solutions.
+// @match        *://www.coursehero.com/textbook-solutions/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Function to reveal all content for a specific part
+    function revealContentForPart(buttonElement) {
+        // Click the part button
+        if (buttonElement) {
+            buttonElement.click();
+        }
+
+        // Click "Show the answer" buttons
+        setTimeout(() => {
+            document.querySelectorAll('button').forEach(button => {
+                if (button.innerText.toLowerCase().includes('show the answer') || button.innerText.toLowerCase().includes('show all steps')) {
+                    button.click();
+                }
+            });
+        }, 1000); // Slight delay to allow for content loading
+
+        // Click "Show step" buttons
+        setTimeout(() => {
+            document.querySelectorAll('button').forEach(button => {
+                if (button.innerText.toLowerCase().includes('show step')) {
+                    button.click();
+                }
+            });
+        }, 2000); // Additional delay for step buttons
+
+        // Remove hidden attributes and show hidden content
+        setTimeout(() => {
+            document.querySelectorAll('[hidden]').forEach(el => {
+                el.removeAttribute('hidden');
+            });
+            document.querySelectorAll('div[style*="display: none"]').forEach(el => {
+                el.style.display = 'block';
+            });
+        }, 3000); // Final delay to reveal hidden content
+    }
+
+    // Automatically identify part buttons based on a common attribute or class
+    const partButtons = Array.from(document.querySelectorAll('button[id^="rover-"]')); // Select buttons with IDs starting with "rover-"
+
+    // If no part buttons are found, try to click "Show the answer" and "Show step" buttons directly
+    if (partButtons.length === 0) {
+        revealContentForPart(null);
+    } else {
+        // Iterate over all part buttons and reveal content
+        partButtons.forEach((button, index) => {
+            setTimeout(() => {
+                revealContentForPart(button);
+            }, 4000 * index); // Stagger each part's reveal to avoid overlap
+        });
+    }
+
+})();

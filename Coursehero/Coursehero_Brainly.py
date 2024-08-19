@@ -686,7 +686,7 @@ async def on_message(message):
     await process_message(message)
 
 # Run the bot
-with open('SSkey.txt') as f:
+with open('C:/Users/MCBat/OneDrive/Desktop/Education-Webscraper/Education-Webscraper/Coursehero/SSkey.txt') as f:
     key = f.read().strip()
 #print(f"Using token: {key}")  # Debugging output
 client.run(key)

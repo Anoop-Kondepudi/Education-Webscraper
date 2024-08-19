@@ -1,0 +1,102 @@
+// ==UserScript==
+// @name         Coursehero Auto-Login and Captcha Solver with Direct Input
+// @namespace    http://tampermonkey.net/
+// @version      1.6
+// @description  Automatically inputs email and password, clicks the "Log in" and "Sign in" buttons on Coursehero, and handles captcha solved scenario to log in again after solving captcha.
+// @author       Your Name
+// @match        *://*.coursehero.com/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    const GIST_ID = 'b9c4c7058c68c7a16bd25fc2b17be768';
+    const GIST_FILE_NAME = 'gistfile1.txt';
+
+    function fetchCredentials() {
+        const gistAPIUrl = `https://api.github.com/gists/${GIST_ID}`;
+        return fetch(gistAPIUrl)
+            .then(response => response.json())
+            .then(data => {
+                const fileContent = data.files[GIST_FILE_NAME].content;
+                const credentials = JSON.parse(fileContent); // Assuming the file is JSON formatted
+                return {
+                    email: credentials.email,
+                    password: credentials.password
+                };
+            });
+    }
+
+    function simulateInput(element, value) {
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+        nativeInputValueSetter.call(element, value);
+
+        const inputEvent = new Event('input', { bubbles: true });
+        element.dispatchEvent(inputEvent);
+    }
+
+    function fillCredentials(email, password) {
+        const emailField = document.querySelector('input#email');
+        const passwordField = document.querySelector('input#password');
+
+        if (emailField) {
+            emailField.focus();
+            simulateInput(emailField, email);
+            emailField.blur();
+            console.log('Email filled');
+        }
+
+        if (passwordField) {
+            passwordField.focus();
+            simulateInput(passwordField, password);
+            passwordField.blur();
+            console.log('Password filled');
+        }
+    }
+
+    function clickButton(buttonText) {
+        const buttons = document.querySelectorAll('button[data-testid="granite-btn"]');
+        buttons.forEach(button => {
+            if (button.textContent.includes(buttonText)) {
+                button.click();
+                console.log(`${buttonText} button clicked`);
+            }
+        });
+    }
+
+    function clickFinalLoginButton(email, password) {
+        const finalLoginButton = document.querySelector('button#login_button');
+        if (finalLoginButton && finalLoginButton.textContent.includes('Log In')) {
+            setTimeout(() => {
+                fillCredentials(email, password); // Fill in email and password
+                setTimeout(() => {
+                    finalLoginButton.click();
+                    console.log('Final Log In button clicked after captcha solved and credentials filled');
+                }, 500); // Wait 0.5 seconds after filling credentials to click the Log In button
+            }, 1000); // Wait for 1 second before starting the process
+        }
+    }
+
+    function monitorCaptchaSolved(email, password) {
+        const captchaSolvedMessage = document.querySelector('#capsolver-solver-tip-button[data-state="solved"]');
+        if (captchaSolvedMessage && captchaSolvedMessage.textContent.includes('Captcha solved!')) {
+            console.log('Captcha solved detected');
+            clickFinalLoginButton(email, password); // Attempt to click the final Log In button
+        } else {
+            setTimeout(() => monitorCaptchaSolved(email, password), 1000); // Check again after 1 second if captcha solved message is not found
+        }
+    }
+
+    function tryClickButtons(email, password) {
+        clickButton('Log in');
+        clickButton('Sign in');
+        monitorCaptchaSolved(email, password); // Start monitoring for captcha solved message
+    }
+
+    window.addEventListener('load', function() {
+        fetchCredentials().then(credentials => {
+            tryClickButtons(credentials.email, credentials.password); // Initial attempt to click the buttons after page load
+        });
+    }, false);
+})();
