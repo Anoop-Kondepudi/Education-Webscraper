@@ -62,6 +62,7 @@ async def process_message(message):
     all_channel_id = 1245866164815659123
     chegg_channel_id = 1262531507436785825
     testing_priv_channel_id = 1240006256278638662
+    studycom_channel_id_ss = None
 
     #School Essentials (soon)
     brainly_channel_id_schoolaro = 1235648614118719569
@@ -80,6 +81,7 @@ async def process_message(message):
 
     quizlet_channel_id_homeworkhelp = 1273812941099237546
     quizlet_channel_id_ss = 1273680069423796347
+    quizlet_channel_id_homeworkunlocker = 1278461429833400330
 
     #Kita Study
     coursehero_channel_id_ks = 1274056906574401537
@@ -87,15 +89,16 @@ async def process_message(message):
     # Process Brainly and CourseHero links based on the channel
     #Brainly Channel ID List: brainly_channel_id, all_channel_id, brainly_channel_id_homeworkhelp, brainly_channel_id_schoolaro
     brainly_url_list = re.findall(r'brainly\.com/question/\d+', message.content) if message.channel.id in [brainly_channel_id, all_channel_id, brainly_channel_id_homeworkhelp, brainly_channel_id_schoolaro, brainly_channel_id_se, brainly_channel_id_homeworkunlocker] else []
-    coursehero_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:file|[\w\d]+)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_homeworkhelp, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, coursehero_channel_id_ks, testing_priv_channel_id] else []
-    tutor_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:tutors-problems|student-questions)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_homeworkhelp, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, coursehero_channel_id_ks, testing_priv_channel_id] else []
+    coursehero_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:file|[\w\d]+)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, testing_priv_channel_id] else []
+    tutor_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:tutors-problems|student-questions)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, testing_priv_channel_id] else []
     chegg_url_list = re.findall(r'(?:https?://)?(?:www\.)?chegg\.com/(?:homework-help|study-guide)/\S+', message.content) if message.channel.id in [1240006256278638662] else []
     textbook_solutions_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/textbook-solutions/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_homeworkhelp, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, testing_priv_channel_id] else []
-    quizlet_question_url_list = re.findall(r'quizlet\.com/explanations/questions/\S+', message.content) if message.channel.id in [quizlet_channel_id_homeworkhelp, quizlet_channel_id_ss, testing_priv_channel_id] else []
-    quizlet_textbook_solutions_url_list = re.findall(r'quizlet\.com/explanations/textbook-solutions/\S+', message.content) if message.channel.id in [quizlet_channel_id_homeworkhelp, quizlet_channel_id_ss, testing_priv_channel_id] else []
+    quizlet_question_url_list = re.findall(r'quizlet\.com/explanations/questions/\S+', message.content) if message.channel.id in [quizlet_channel_id_homeworkhelp, quizlet_channel_id_ss, quizlet_channel_id_homeworkunlocker, testing_priv_channel_id] else []
+    quizlet_textbook_solutions_url_list = re.findall(r'quizlet\.com/explanations/textbook-solutions/\S+', message.content) if message.channel.id in [quizlet_channel_id_homeworkhelp, quizlet_channel_id_ss, quizlet_channel_id_homeworkunlocker, testing_priv_channel_id] else []
+    study_url_list = re.findall(r'homework\.study\.com/explanation/\S+', message.content) if message.channel.id in [testing_priv_channel_id] else []
 
-
-    url_list = brainly_url_list + coursehero_url_list + tutor_url_list + textbook_solutions_url_list + chegg_url_list + quizlet_question_url_list + quizlet_textbook_solutions_url_list
+    #url_list = brainly_url_list + coursehero_url_list + tutor_url_list + textbook_solutions_url_list + chegg_url_list + quizlet_question_url_list + quizlet_textbook_solutions_url_list
+    url_list = brainly_url_list + chegg_url_list + quizlet_question_url_list + quizlet_textbook_solutions_url_list + coursehero_url_list + tutor_url_list + study_url_list
     if len(url_list) > 0:
         try:
             await message.add_reaction(loading_emoji)
@@ -194,6 +197,33 @@ async def perform_logout():
     except Exception as e:
         print(f"An error occurred during logout: {e}")
 
+async def handle_study_com_download(url):
+    await open_study_com_page(url)
+
+    # Define the download folder path
+    download_folder = "C:\\Users\\MCBat\\Downloads"
+
+    await asyncio.sleep(20)  # Wait for 20 seconds after opening the URL
+
+    # Click the HTML Download button with 90% confidence
+    if click_button(html_download_button_path, "Study_HTML_Download", delay_after_click=2, confidence=0.9):
+        # Download successful, wait for the downloaded file
+        await asyncio.sleep(12)
+        downloaded_file = await wait_for_downloaded_file(download_folder)
+        if downloaded_file:
+            await asyncio.sleep(6)  # Add a short delay after download
+            pyautogui.click(960, 640)  # Click the mouse at the specific location (960, 640).
+            print("Clicked Mouse at (960,640)")
+            #close_tab()
+            return downloaded_file
+    else:
+        # If download fails, return None
+        return None
+
+async def open_study_com_page(url):
+    chrome_path = 'C:/Program Files/Google/Chrome/Application/chrome.exe %s'
+    await open_url_non_blocking(url)
+    await asyncio.sleep(20)  # Wait for 20 seconds to ensure the page is fully loaded
 
 #Add new function for handling textbook solutions
 async def handle_coursehero_textbook_solution(url):
@@ -604,6 +634,25 @@ async def process_queue():
                         # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
 
+                    elif 'homework.study.com/explanation' in url:
+                        # Handle Study.com download process
+                        downloaded_file = await handle_study_com_download(url)
+                        if not downloaded_file:
+                            await message.channel.send("Failed to download the Study.com document.")
+                            try:
+                                await message.remove_reaction(loading_emoji, client.user)
+                                await message.add_reaction(uncheck_emoji)
+                            except discord.errors.NotFound:
+                                print("Message not found when trying to add/remove reactions.")
+                            continue
+
+                        # Send the downloaded file
+                        user_mention = f"<@{author.id}>"
+                        document_name = f"Study.com document"
+                        await message.channel.send(f"{user_mention}, here is your {document_name}:", file=discord.File(downloaded_file))
+
+                        # Clean up by removing the downloaded file
+                        os.remove(downloaded_file)
 
                     elif 'chegg.com' in url:
                         # Handle Chegg download process
