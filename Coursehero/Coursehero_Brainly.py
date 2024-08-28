@@ -283,7 +283,7 @@ async def handle_quizlet_download(url):
             await asyncio.sleep(6)  # Add a short delay after download
             pyautogui.click(960, 640)  # Click the mouse at the specific location (960, 640).
             print("Clicked Mouse at (960,640)")
-            close_tab()
+            #close_tab()
             return downloaded_file
     else:
         # If download fails, return None
