@@ -48,7 +48,37 @@ class LinkBot(commands.Bot):
 
     async def handle_url(self, author, message, url):
         embed = self.create_embed(url)
-        await message.reply(embed=embed)
+        
+        try:
+            # Attempt to send a DM to the author
+            await author.send(embed=embed)
+            await message.add_reaction('✉️')  # Reaction to indicate DM sent successfully
+
+            # Delete the user's original message
+            await message.delete()
+
+            # Send a warning message to the user in the server channel
+            warning_message = (
+                f"Hello {author.mention}, I sent you a DM with some information regarding our server. "
+                "Please read over that. If you continue sending question links where it is not meant to be sent, "
+                "you will be muted, kicked or even banned. Please do not continue this behavior. Thank you!"
+            )
+            sent_warning = await message.channel.send(warning_message)
+
+            # Wait 1 minute and then delete the warning message
+            await asyncio.sleep(60)
+            await sent_warning.delete()
+
+        except discord.Forbidden:
+            # If the DM fails, send the embed in the channel where the message was posted
+            sent_embed = await message.reply(embed=embed)
+            await message.add_reaction('📨')  # Reaction to indicate message sent in the server
+
+            # Wait 1 minute and then delete both the user's message and the embed
+            await asyncio.sleep(60)
+            await message.delete()
+            await sent_embed.delete()
+
 
     def create_embed(self, url):
         embed = discord.Embed(
