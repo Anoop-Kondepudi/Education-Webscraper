@@ -9,8 +9,8 @@ GIST_ID = 'b9c4c7058c68c7a16bd25fc2b17be768'  # The ID of the Gist you want to u
 
 # Proxy settings
 proxies = {
-    "http": "http://wr37kDWXUGoa:USMuWej9iXz8@121.91.240.183:8080",
-    "https": "http://wr37kDWXUGoa:USMuWej9iXz8@121.91.240.183:8080"
+    'http': 'http://wr37kDWXUGoa:USMuWej9iXz8@209.142.123.110:8080',
+    'https': 'http://wr37kDWXUGoa:USMuWej9iXz8@209.142.123.110:8080'
 }
 
 # Define the intents

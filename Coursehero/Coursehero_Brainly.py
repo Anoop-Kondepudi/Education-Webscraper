@@ -58,7 +58,7 @@ async def process_message(message):
     
     #Study Solutions:
     brainly_channel_id = 1241857920224858163
-    coursehero_channel_id = 1241857214600188035
+    coursehero_channel_id = 1287500278345764865
     all_channel_id = 1245866164815659123
     chegg_channel_id = 1262531507436785825
     testing_priv_channel_id = 1240006256278638662
@@ -89,14 +89,11 @@ async def process_message(message):
     #Kita Study
     coursehero_channel_id_ks = 1274056906574401537
 
-    #Nitin da Bum
-    brainly_channel_id_nitin = 1284941584210853989
-
     # Process Brainly and CourseHero links based on the channel
     #Brainly Channel ID List: brainly_channel_id, all_channel_id, brainly_channel_id_homeworkhelp, brainly_channel_id_schoolaro
-    brainly_url_list = re.findall(r'brainly\.com/question/\d+', message.content) if message.channel.id in [brainly_channel_id, all_channel_id, brainly_channel_id_homeworkhelp, brainly_channel_id_schoolaro, brainly_channel_id_se, brainly_channel_id_homeworkunlocker, brainly_channel_id_nitin] else []
-    coursehero_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:file|[\w\d]+)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, testing_priv_channel_id] else []
-    tutor_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:tutors-problems|student-questions)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, testing_priv_channel_id] else []
+    brainly_url_list = re.findall(r'brainly\.com/question/\d+', message.content) if message.channel.id in [brainly_channel_id, all_channel_id, brainly_channel_id_homeworkhelp, brainly_channel_id_schoolaro, brainly_channel_id_se, brainly_channel_id_homeworkunlocker] else []
+    coursehero_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:file|[\w\d]+)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_se, testing_priv_channel_id, coursehero_channel_id_homeworkunlocker] else []
+    tutor_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/(?:tutors-problems|student-questions)/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_se, testing_priv_channel_id, coursehero_channel_id_homeworkunlocker] else []
     chegg_url_list = re.findall(r'(?:https?://)?(?:www\.)?chegg\.com/(?:homework-help|study-guide)/\S+', message.content) if message.channel.id in [1240006256278638662] else []
     textbook_solutions_url_list = re.findall(r'(?:https?:://)?(?:www\.)?coursehero\.com/textbook-solutions/\S+', message.content) if message.channel.id in [coursehero_channel_id, all_channel_id, coursehero_channel_id_homeworkhelp, coursehero_channel_id_se, coursehero_channel_id_homeworkunlocker, testing_priv_channel_id] else []
     quizlet_question_url_list = re.findall(r'quizlet\.com/explanations/questions/\S+', message.content) if message.channel.id in [quizlet_channel_id_homeworkhelp, quizlet_channel_id_ss, quizlet_channel_id_homeworkunlocker, quizlet_channel_id_se, testing_priv_channel_id] else []
@@ -104,7 +101,7 @@ async def process_message(message):
     study_url_list = re.findall(r'(homework\.study\.com/explanation/\S+|study\.com/academy/lesson/\S+)', message.content) if message.channel.id in [studycom_channel_id_homeworkhelp, studycom_channel_id_ss, studycom_channel_id_se, testing_priv_channel_id] else []
 
     #url_list = brainly_url_list + coursehero_url_list + tutor_url_list + textbook_solutions_url_list + chegg_url_list + quizlet_question_url_list + quizlet_textbook_solutions_url_list
-    url_list = brainly_url_list + chegg_url_list + quizlet_question_url_list + quizlet_textbook_solutions_url_list + study_url_list
+    url_list = brainly_url_list + chegg_url_list + quizlet_question_url_list + quizlet_textbook_solutions_url_list + study_url_list + coursehero_url_list + tutor_url_list
     if len(url_list) > 0:
         try:
             await message.add_reaction(loading_emoji)
