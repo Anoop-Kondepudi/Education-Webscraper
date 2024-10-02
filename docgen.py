@@ -18,7 +18,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
-allowed_channel_ids = [1080721350332792922, 1264247366202953729, 1260659627654123612]  # Add more channel IDs as needed
+allowed_channel_ids = [1080721350332792922, 1264247366202953729, 1260659627654123612, 1285650825514979351]  # Add more channel IDs as needed
 
 s3_bucket_name = 'studysolutions'  # Replace with your AWS S3 bucket name
 aws_access_key = 'AKIAZQ3DR6XOHHTMTHIE'
