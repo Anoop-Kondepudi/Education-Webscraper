@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands, tasks
 from datetime import datetime, timezone, timedelta
 import re
+from dotenv import load_dotenv
+import os
 
 # Define the bot and intents
 intents = discord.Intents.default()
@@ -106,8 +108,5 @@ async def clear(ctx):
     else:
         await ctx.send("You do not have permission to use this command.")
 
-# Add your bot token
-TOKEN = 'MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s'  # Replace with your actual bot token
-
-# Run the bot
-bot.run(TOKEN)
+load_dotenv()  # Load environment variables from the .env file
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')  # Fetch token from environment variable

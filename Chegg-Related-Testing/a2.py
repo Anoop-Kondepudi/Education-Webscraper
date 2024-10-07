@@ -2,11 +2,11 @@ import requests
 
 # Define webhooks
 webhooks = [
-    "https://discord.com/api/webhooks/1290503546105626656/zv1jOu4BBP6j5m-Z408KTdw3AJMg_Lr8wb3sgkGNFzBdooqN-T7qhoLQ6rmy0Nzn-nrQ",  # fiesto
-    "https://discord.com/api/webhooks/1290503567823867958/dRmWQa7oF_aDTBBaI08Lqq4dX43aN4YqvJaCZB5fPBwLP2E-NmAZDjOY5gw8F0XbT4bl",  # jamal
-    "https://discord.com/api/webhooks/1290503594843308055/3L65ag0gLKjwehGtkADRjrcjNq065iz-ClWzpr38GlZ4fWNmIL_X9LA2otinhVLHW72j",  # ahmed
-    "https://discord.com/api/webhooks/1290503619380248627/xyEQW6ic8nYSu_jiWifAWzMQdKIacGqO7Oo4N2oQFDAqroV5A3j7J1rS8optDMrwuYPk",  # yuh yeet
-    "https://discord.com/api/webhooks/1290503651651223563/kL8smR0Fq2gLMjjptLMK-vvuuc2L9LiYaf4IGMTUiEiKuGGrNIbaxxLB0kupA9a3jNRw"   # kumar
+    "https://discord.com/api/webhooks/1290503546105626656/zv1jOu4BBP6j5m-Z408KTdw3AJMg_Lr8wb3sgkGNFzBdooqN-T7qhoLQ6rmy0Nzn-nrQ",
+    "https://discord.com/api/webhooks/1290503567823867958/dRmWQa7oF_aDTBBaI08Lqq4dX43aN4YqvJaCZB5fPBwLP2E-NmAZDjOY5gw8F0XbT4bl",
+    "https://discord.com/api/webhooks/1290503594843308055/3L65ag0gLKjwehGtkADRjrcjNq065iz-ClWzpr38GlZ4fWNmIL_X9LA2otinhVLHW72j",
+    "https://discord.com/api/webhooks/1290503619380248627/xyEQW6ic8nYSu_jiWifAWzMQdKIacGqO7Oo4N2oQFDAqroV5A3j7J1rS8optDMrwuYPk",  
+    "https://discord.com/api/webhooks/1290503651651223563/kL8smR0Fq2gLMjjptLMK-vvuuc2L9LiYaf4IGMTUiEiKuGGrNIbaxxLB0kupA9a3jNRw"
 ]
 
 # Path to the file

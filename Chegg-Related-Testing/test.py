@@ -4,6 +4,7 @@ import asyncio
 import os
 import re
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 # Bot setup
 intents = discord.Intents.default()
@@ -165,4 +166,11 @@ async def process_html_file(file_path):
     if file_path != final_file_path:
         os.remove(file_path)
 
-bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')  # Replace with your bot token
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the bot token from the .env file
+token = os.getenv('DISCORD_TOKEN')
+
+# Run the bot using the token from the .env file
+bot.run(token)

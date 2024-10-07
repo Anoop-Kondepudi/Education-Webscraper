@@ -2,9 +2,11 @@ import discord
 from discord.ext import commands
 import re
 import os
+from dotenv import load_dotenv
 
 # Replace with your bot's token
-TOKEN = 'MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s'
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL_ID = 1269414620150366323  # The channel ID you want to monitor
 USER_ID = 823981400260476968      # The user ID allowed to use the commands
 LOADING_EMOJI = 1240447269313183785  # ID for loading emoji

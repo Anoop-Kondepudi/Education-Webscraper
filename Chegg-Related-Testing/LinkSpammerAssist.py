@@ -30,4 +30,4 @@ async def on_message(message):
                 print(f"Failed to delete message: {e}")
 
 # Replace 'YOUR_DISCORD_BOT_TOKEN' with your actual bot token
-bot.run('MTI4NzkxNzEwMzExMzgzNDU1Ng.Gozfz4.luzPIB1upicL05JBOtAnnLX4YP1ENwsD_X1Oi8')
+bot.run('BOT_TOKEN_HERE')
