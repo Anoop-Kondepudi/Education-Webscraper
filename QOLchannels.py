@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import asyncio
+from dotenv import load_dotenv
+import os
 
 # Define the necessary intents
 intents = discord.Intents.default()
@@ -59,5 +61,11 @@ async def open(ctx):
     else:
         await ctx.send("You don't have permission to execute this command or the channel is not configured.")
 
-# Run the bot with your bot token
-bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the bot token from the .env file
+token = os.getenv('DISCORD_TOKEN')
+
+# Run the bot using the token from the .env file
+bot.run(token)

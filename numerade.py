@@ -4,6 +4,8 @@ import httpx
 from bs4 import BeautifulSoup
 import asyncio
 import re
+from dotenv import load_dotenv
+import os
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -139,5 +141,14 @@ class NumeradeBot(commands.Bot):
 
 
 if __name__ == '__main__':
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Retrieve the bot token from the .env file
+    token = os.getenv('DISCORD_TOKEN')
+
+    # Initialize the bot
     bot = NumeradeBot()
-    bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+
+    # Run the bot using the token from the .env file
+    bot.run(token)

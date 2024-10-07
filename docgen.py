@@ -14,6 +14,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
+from dotenv import load_dotenv
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -206,9 +207,15 @@ async def generate_s3_presigned_url(file_paths, generator, expiration_time=3600)
     )
     return presigned_url
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the bot token from the .env file
+token = os.getenv('DISCORD_TOKEN')
+
 async def main():
     async with bot:
         bot.loop.create_task(process_queue())
-        await bot.start("MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s")
+        await bot.start(token)  # Use the token from the .env file
 
 asyncio.run(main())

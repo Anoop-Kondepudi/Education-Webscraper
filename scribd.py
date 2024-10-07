@@ -3,6 +3,7 @@ from discord.ext import commands
 import re
 import requests
 import os
+from dotenv import load_dotenv
 
 intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent explicitly
@@ -67,5 +68,14 @@ class ScribdBot(commands.Bot):
         print(f'Error occurred in {event_method}: {args[0]}')
 
 if __name__ == '__main__':
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Retrieve the bot token from the .env file
+    token = os.getenv('DISCORD_TOKEN')
+
+    # Initialize the bot
     bot = ScribdBot()
-    bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+
+    # Run the bot using the token from the .env file
+    bot.run(token)

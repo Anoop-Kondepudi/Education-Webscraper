@@ -5,6 +5,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import os
+from dotenv import load_dotenv
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -153,5 +154,14 @@ class StudyBot(commands.Bot):
         file_name = url.split('/')[-1]
         return str(soup), file_name, video_link
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the bot token from the .env file
+token = os.getenv('DISCORD_TOKEN')
+
+# Initialize the bot
 bot = StudyBot()
-bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+
+# Run the bot using the token from the .env file
+bot.run(token)

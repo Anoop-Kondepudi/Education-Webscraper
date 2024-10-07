@@ -4,8 +4,10 @@ from discord.ui import Button, View
 import sqlite3
 import asyncio
 from datetime import datetime, timezone, timedelta
+from dotenv import load_dotenv
+import os
 
-current_time = datetime.datetime.now(datetime.UTC)  # Using timezone-aware datetime
+#current_time = datetime.datetime.now(datetime.UTC)  # Using timezone-aware datetime
 
 # Setup the bot with command prefix and intents
 intents = discord.Intents.default()
@@ -227,4 +229,11 @@ async def stats(ctx):
                    f"Current Trial Access users: {current_trial_users}\n"
                    f"Total users notified (trial expired): {total_notified}")
 
-bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the bot token from the .env file
+token = os.getenv('DISCORD_TOKEN')
+
+# Run the bot using the token from the .env file
+bot.run(token)

@@ -5,6 +5,7 @@ import os
 import re
 from bs4 import BeautifulSoup
 import time
+from dotenv import load_dotenv
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -159,5 +160,14 @@ class ScraperSaverBot(commands.Bot):
             print("Bot message does not contain the expected format or HTML file.")
 
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the bot token from the .env file
+token = os.getenv('DISCORD_TOKEN')
+
+# Initialize the bot
 bot = ScraperSaverBot()
-bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+
+# Run the bot using the token from the .env file
+bot.run(token)

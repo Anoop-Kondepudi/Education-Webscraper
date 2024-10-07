@@ -5,6 +5,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import os
+from dotenv import load_dotenv
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -137,5 +138,12 @@ class BartlebyBot(commands.Bot):
         file_name = url.split('/')[-1]
         return str(soup), file_name
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the token from the environment variable
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+
+# Run the bot using the token from the environment
 bot = BartlebyBot()
-bot.run('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+bot.run(DISCORD_TOKEN)

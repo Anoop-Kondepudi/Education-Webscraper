@@ -13,6 +13,7 @@ import secrets
 import botocore.exceptions
 import mimetypes
 import subprocess
+from dotenv import load_dotenv
 
 keyboard = Controller()
 
@@ -758,7 +759,14 @@ async def on_message(message):
     await process_message(message)
 
 # Run the bot
-with open('C:/Users/MCBat/OneDrive/Desktop/Education-Webscraper/Education-Webscraper/Coursehero/SSkey.txt') as f:
-    key = f.read().strip()
-#print(f"Using token: {key}")  # Debugging output
+# Load the .env file
+load_dotenv()
+
+# Get the token from the .env file
+key = os.getenv('DISCORD_TOKEN')
+
+# Debugging output (optional)
+# print(f"Using token: {key}")
+
+# Run the bot with the key retrieved from the .env file
 client.run(key)

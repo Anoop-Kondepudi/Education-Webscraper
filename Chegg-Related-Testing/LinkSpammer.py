@@ -73,7 +73,7 @@ async def main():
     # Add the cog to the bot in an async context
     await bot.add_cog(CheggLinkSender(bot))
     # Start the bot
-    await bot.start('MTI1NDE5MDkyMDQ4NDUyNDE1Mg.GwQg-h.vSozMhcNOIMX3WzoIBMyDt47qsqd6hMHJEIy2s')
+    await bot.start('BOT_TOKEN_HERE')
 
 # Use asyncio.run to start the bot
 asyncio.run(main())

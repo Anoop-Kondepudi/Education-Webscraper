@@ -34,6 +34,6 @@ while True:
 
     print(f'Processing link: {link}')
     paste_and_enter(link)  # Paste and enter the link
-    time.sleep(3)  # Wait for 5 seconds
+    time.sleep(2)  # Wait for 5 seconds
 
 print("All links processed.")
