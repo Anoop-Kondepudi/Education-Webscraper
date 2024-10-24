@@ -201,6 +201,94 @@ async def perform_logout():
     except Exception as e:
         print(f"An error occurred during logout: {e}")
 
+async def handle_coursehero_download_via_vm(link):
+    """
+    Handles downloading a CourseHero document by interacting with the already open and logged-in browser session on the VM.
+    """
+    try:
+        # Extract the document ID from the link
+        search_doc_id = re.search(r'file/(\d+)', link)
+        if not search_doc_id:
+            print("Error: Could not extract document ID.")
+            return None
+
+        document_id = search_doc_id.group(1)
+
+        # Open the document URL in the browser
+        document_url = f'https://www.coursehero.com/file/{document_id}/'
+        await open_url_non_blocking(document_url)
+        await asyncio.sleep(5)  # Adjust sleep time based on your VM's browser loading speed
+
+        # Attempt to locate and click the download button
+        if click_button(download_button_path, "CourseHero Download Button", confidence=0.9):
+            await asyncio.sleep(3)  # Wait for download initiation
+
+            # Check if the download region contains the download confirmation popup/button
+            if click_button(download_redownload_button_path, "Confirm Download", confidence=0.9):
+                print("Download initiated successfully.")
+                await asyncio.sleep(12)  # Wait for the download to complete based on your VM speed
+
+                # Confirm the download has been saved
+                downloaded_file = await wait_for_downloaded_file("C:\\Users\\MCBat\\Downloads")
+                if downloaded_file:
+                    print(f"Successfully downloaded {downloaded_file}.")
+                    return downloaded_file
+                else:
+                    print("Error: File download did not complete.")
+            else:
+                print("Error: Could not confirm the download.")
+        else:
+            print("Error: Download button not found.")
+        return None
+
+    except Exception as e:
+        print(f"An error occurred during CourseHero document download: {e}")
+        return None
+
+async def handle_coursehero_tutor_question_via_vm(link):
+    """
+    Handles downloading a CourseHero Tutor question by interacting with the open and logged-in browser session on the VM.
+    """
+    try:
+        # Extract the tutor question ID from the link
+        search_tutor_id = re.search(r'tutors-problems/(\d+)', link)
+        if not search_tutor_id:
+            print("Error: Could not extract tutor question ID.")
+            return None
+
+        question_id = search_tutor_id.group(1)
+
+        # Open the tutor question URL in the browser
+        question_url = f'https://www.coursehero.com/tutors-problems/{question_id}/'
+        await open_url_non_blocking(question_url)
+        await asyncio.sleep(5)  # Adjust sleep time based on your VM's browser loading speed
+
+        # Attempt to locate and click the "Unlock Tutor Question" button
+        if click_button(tutor_unlock_button_path, "CourseHero Tutor Unlock Button", confidence=0.9):
+            await asyncio.sleep(5)  # Wait for unlocking action to complete
+
+            # Verify if the "HTML Download" button appears and click it
+            if click_button(html_download_button_path, "HTML Download Button", confidence=0.9):
+                print("Tutor question download initiated successfully.")
+                await asyncio.sleep(12)  # Wait for the download to complete based on your VM speed
+
+                # Confirm the download has been saved
+                downloaded_file = await wait_for_downloaded_file("C:\\Users\\MCBat\\Downloads")
+                if downloaded_file:
+                    print(f"Successfully downloaded {downloaded_file}.")
+                    return downloaded_file
+                else:
+                    print("Error: File download did not complete.")
+            else:
+                print("Error: Could not find the HTML download button.")
+        else:
+            print("Error: Could not unlock the Tutor question.")
+        return None
+
+    except Exception as e:
+        print(f"An error occurred during CourseHero tutor question download: {e}")
+        return None
+
 async def handle_study_com_download(url):
     await open_study_com_page(url)
 
@@ -546,13 +634,8 @@ async def process_queue():
             for url in url_list:
                 try:
                     if 'coursehero.com/file' in url:
-                        # Handle CourseHero download process
-                        downloaded_file = await handle_coursehero_download(
-                            f'https://{url}',
-                            download_button_path,
-                            tripledot_redownload_button_path,
-                            download_redownload_button_path
-                        )
+                        # Handle CourseHero download process via VM
+                        downloaded_file = await handle_coursehero_download_via_vm(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero document.")
                             try:
@@ -564,15 +647,15 @@ async def process_queue():
 
                         # Send the downloaded file
                         user_mention = f"<@{author.id}>"
-                        question_link = f"CourseHero document"
+                        question_link = "CourseHero document"
                         await message.channel.send(f"{user_mention}, here is your {question_link}:", file=discord.File(downloaded_file))
 
                         # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
 
                     elif 'tutors-problems' in url or 'student-questions' in url:
-                        # Handle CourseHero Tutor question download process
-                        downloaded_file = await handle_coursehero_tutor_question(url)
+                        # Handle CourseHero Tutor question download process via VM
+                        downloaded_file = await handle_coursehero_tutor_question_via_vm(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero Tutor question document.")
                             try:
@@ -584,18 +667,15 @@ async def process_queue():
 
                         # Send the HTML file with user mention
                         user_mention = f"<@{author.id}>"
-                        question_link = f"CourseHero Tutor Question Unlocked!"
+                        question_link = "CourseHero Tutor Question Unlocked!"
                         with open(downloaded_file, 'rb') as f:
-                            await message.channel.send(
-                                f"{user_mention}, here is your {question_link}:",
-                                file=discord.File(f, filename='CourseHero_Tutor_Question.html')
-                            )
+                            await message.channel.send(f"{user_mention}, here is your {question_link}:", file=discord.File(f, filename='CourseHero_Tutor_Question.html'))
 
-                        # Clean up: Remove downloaded file
+                        # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
 
                     elif 'coursehero.com/textbook-solutions' in url:
-                        # Handle CourseHero Textbook Solution download process
+                        # Handle CourseHero Textbook Solution download process via VM
                         downloaded_file = await handle_coursehero_textbook_solution(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero Textbook Solution document.")
@@ -608,14 +688,11 @@ async def process_queue():
 
                         # Send the downloaded HTML file with user mention
                         user_mention = f"<@{author.id}>"
-                        solution_link = f"CourseHero Textbook Solution"
+                        solution_link = "CourseHero Textbook Solution"
                         with open(downloaded_file, 'rb') as f:
-                            await message.channel.send(
-                                f"{user_mention}, here is your {solution_link}:",
-                                file=discord.File(f, filename='CourseHero_Textbook_Solution.html')
-                            )
+                            await message.channel.send(f"{user_mention}, here is your {solution_link}:", file=discord.File(f, filename='CourseHero_Textbook_Solution.html'))
 
-                        # Clean up: Remove downloaded file
+                        # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
 
                     elif 'quizlet.com/explanations/questions' in url or 'quizlet.com/explanations/textbook-solutions' in url:
@@ -632,13 +709,13 @@ async def process_queue():
 
                         # Send the downloaded file
                         user_mention = f"<@{author.id}>"
-                        document_name = f"Quizlet document"
+                        document_name = "Quizlet document"
                         await message.channel.send(f"{user_mention}, here is your {document_name}:", file=discord.File(downloaded_file))
 
                         # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
 
-                    elif 'homework.study.com/explanation' in url:
+                    elif 'homework.study.com/explanation' in url or 'study.com/academy/lesson' in url:
                         # Handle Study.com download process
                         downloaded_file = await handle_study_com_download(url)
                         if not downloaded_file:
@@ -652,27 +729,7 @@ async def process_queue():
 
                         # Send the downloaded file
                         user_mention = f"<@{author.id}>"
-                        document_name = f"Study.com document"
-                        await message.channel.send(f"{user_mention}, here is your {document_name}:", file=discord.File(downloaded_file))
-
-                        # Clean up by removing the downloaded file
-                        os.remove(downloaded_file)
-
-                    elif 'study.com/academy/lesson' in url:
-                        # Handle Study.com Academy Lesson download process
-                        downloaded_file = await handle_study_com_download(url)
-                        if not downloaded_file:
-                            await message.channel.send("Failed to download the Study.com lesson document.")
-                            try:
-                                await message.remove_reaction(loading_emoji, client.user)
-                                await message.add_reaction(uncheck_emoji)
-                            except discord.errors.NotFound:
-                                print("Message not found when trying to add/remove reactions.")
-                            continue
-
-                        # Send the downloaded file
-                        user_mention = f"<@{author.id}>"
-                        document_name = f"Study.com Academy Lesson document"
+                        document_name = "Study.com document"
                         await message.channel.send(f"{user_mention}, here is your {document_name}:", file=discord.File(downloaded_file))
 
                         # Clean up by removing the downloaded file
@@ -692,9 +749,9 @@ async def process_queue():
 
                         # Send the downloaded file
                         user_mention = f"<@{author.id}>"
-                        document_name = f"Chegg document"
+                        document_name = "Chegg document"
                         await message.channel.send(f"{user_mention}, here is your {document_name}:", file=discord.File(downloaded_file))
-                        
+
                         # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
 
@@ -712,12 +769,9 @@ async def process_queue():
 
                         # Send the downloaded HTML file with user mention and hyperlink
                         user_mention = f"<@{author.id}>"
-                        question_link = f"Brainly question"
+                        question_link = "Brainly question"
                         with open(downloaded_file, 'rb') as f:
-                            await message.channel.send(
-                                f"{user_mention}, here is your {question_link}:",
-                                file=discord.File(f, filename='Brainly_Question.html')
-                            )
+                            await message.channel.send(f"{user_mention}, here is your {question_link}:", file=discord.File(f, filename='Brainly_Question.html'))
 
                         # Clean up by removing the downloaded file
                         os.remove(downloaded_file)
@@ -731,7 +785,6 @@ async def process_queue():
                     except discord.errors.NotFound:
                         print("Message not found when trying to add/remove reactions.")
                     finally:
-                        # Close the current browser tab
                         print("Close_Tab Should Be Here")
 
                 # Move this part outside of the except block to ensure it always executes
@@ -745,6 +798,7 @@ async def process_queue():
                 await message.channel.send("All links processed successfully.")
                 close_tab()
             running = False
+
 
 @client.event
 async def on_message(message):

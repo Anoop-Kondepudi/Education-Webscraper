@@ -4,7 +4,6 @@ import requests
 import os
 import re
 from bs4 import BeautifulSoup
-import time
 from dotenv import load_dotenv
 
 intents = discord.Intents.default()
@@ -24,19 +23,22 @@ class ScraperSaverBot(commands.Bot):
         supported_channels = [1287858800526884875, 1286395936452382841, 1260426776551624774, 1288340990167486464, 1285302064087302234]
 
         if message.author.id in supported_bot_ids and message.channel.id in supported_channels:
-            # Check for messages from the new bot with the embed (ID: 1288114837993553920)
+            # Check for messages from bot 1288114837993553920 containing an embed
             if message.author.id == 1288114837993553920:
                 if message.embeds:  # Check if the message contains an embed
                     embed = message.embeds[0]  # Get the first embed
                     if embed.description and "Click here to view your answer" in embed.description:
                         print(f"Embed Description: {embed.description}")
                         await self.process_new_bot_embed(embed, message)
-
-            # Check for messages from other supported bots
+            # Check for messages from other supported bots with attachments or buttons
             elif message.author.id in supported_bot_ids:
-                # Check if the message contains the expected format and attachment
                 if message.attachments:
                     await self.process_html_attachment(message)
+                elif message.components:  # Check if the message contains buttons
+                    button = message.components[0].children[0]  # Get the first button
+                    if button.label == "View Answer":  # Ensure it's the correct button
+                        print("Found 'View Answer' button, processing...")
+                        await self.process_button_url(button.url)
 
     async def process_new_bot_embed(self, embed, message):
         # Updated regex to capture the entire URL including query parameters
@@ -48,8 +50,13 @@ class ScraperSaverBot(commands.Bot):
         else:
             print("No download link found in the embed description.")
 
+    async def process_button_url(self, url):
+        # Handle any external URL now, like the website provided
+        print(f"Processing URL: {url}")
+        await self.download_and_process_html(url)
+
     async def download_and_process_html(self, download_link):
-        # Download the HTML file
+        # Download the HTML file from the external site or Discord
         response = requests.get(download_link)
         if response.status_code == 200:
             temp_path = os.path.join("E:\\egg", "downloaded.html")
@@ -63,30 +70,45 @@ class ScraperSaverBot(commands.Bot):
             print(f"Failed to download the HTML file. Status Code: {response.status_code}")
 
     async def process_html_file(self, temp_path):
-        # Process the downloaded HTML file
-        with open(temp_path, 'r', encoding='utf-8') as file:
-            soup = BeautifulSoup(file, 'html.parser')
+        try:
+            # Process the downloaded HTML file
+            with open(temp_path, 'r', encoding='utf-8') as file:
+                soup = BeautifulSoup(file, 'html.parser')
 
-        # Extract the Chegg question URL
-        chegg_url_element = soup.find('a', href=re.compile(r'https:\/\/www\.chegg\.com\/homework-help\/questions-and-answers\/'))
-        if chegg_url_element:
-            chegg_url = chegg_url_element['href']
-            chegg_question_id = re.search(r'q(\d+)', chegg_url).group(0)
-            print(f"Extracted Chegg URL: {chegg_url}")
-            print(f"Chegg Question ID: {chegg_question_id}")
+            # Ensure the title is set to "Study Solutions"
+            title_tag = soup.find('title')
+            if title_tag:
+                title_tag.string = "Study Solutions"
+            else:
+                # Create a new <title> tag if it doesn't exist
+                new_title_tag = soup.new_tag('title')
+                new_title_tag.string = "Study Solutions"
+                soup.head.append(new_title_tag)
 
-            # Save the processed HTML with the Chegg question ID as filename
-            file_name = f"{chegg_question_id}.html"
-            file_path = os.path.join("E:\\egg", file_name)
-            with open(file_path, 'w', encoding='utf-8') as file:
-                file.write(str(soup))
-            print(f"Saved processed HTML file as {file_name}")
+            # Extract the Chegg question URL
+            chegg_url_element = soup.find('a', href=re.compile(r'https:\/\/www\.chegg\.com\/homework-help\/questions-and-answers\/'))
+            if chegg_url_element:
+                chegg_url = chegg_url_element['href']
+                chegg_question_id = re.search(r'q(\d+)', chegg_url).group(0)
+                print(f"Extracted Chegg URL: {chegg_url}")
+                print(f"Chegg Question ID: {chegg_question_id}")
 
-        else:
-            print("Chegg question URL not found in the HTML content.")
-
-        # Remove the temporary file after processing
-        os.remove(temp_path)
+                # Save the processed HTML with the Chegg question ID as filename
+                file_name = f"{chegg_question_id}.html"
+                file_path = os.path.join("E:\\egg", file_name)
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    file.write(str(soup))
+                print(f"Saved processed HTML file as {file_name}")
+            else:
+                # Save the HTML as is if no Chegg link is found
+                file_name = "processed_external.html"
+                file_path = os.path.join("E:\\egg", file_name)
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    file.write(str(soup))
+                print(f"Saved processed HTML file as {file_name}")
+        finally:
+            # Always remove the temporary file after processing
+            os.remove(temp_path)
 
     async def process_html_attachment(self, message):
         # Process HTML attachments for other bots
@@ -133,7 +155,7 @@ class ScraperSaverBot(commands.Bot):
             file_name = f"{chegg_question_id}.html" if chegg_question_id else html_attachment.filename
             file_path = os.path.join("E:\\egg", file_name)
 
-            # Create a new <title> tag with "Study Solutions" if it doesn't exist
+            # Ensure the title is set to "Study Solutions"
             title_tag = soup.find('title')
             if title_tag:
                 title_tag.string = "Study Solutions"
@@ -150,15 +172,6 @@ class ScraperSaverBot(commands.Bot):
 
             # Remove the temporary file
             os.remove(temp_path)
-
-            # Check if the bot message mentions a specific user
-            if any(user.id == 1254190920484524152 for user in message.mentions):
-                print(f"Message mentions the user with ID: 1254190920484524152. Deleting the message.")
-                await message.delete()  # Delete the message with the HTML file
-                print("Message deleted.")
-        else:
-            print("Bot message does not contain the expected format or HTML file.")
-
 
 # Load environment variables from .env file
 load_dotenv()
