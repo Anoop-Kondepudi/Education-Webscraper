@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 # Discord Bot Token and GitHub Info
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
-GITHUB_TOKEN = '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'
-GIST_ID = 'b9c4c7058c68c7a16bd25fc2b17be768'  # The ID of the Gist you want to update
+GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
+GIST_ID = os.getenv('GIST_ID')
 
 # Proxy settings
 proxies = {
