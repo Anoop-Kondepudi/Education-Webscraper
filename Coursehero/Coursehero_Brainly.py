@@ -201,6 +201,59 @@ async def perform_logout():
     except Exception as e:
         print(f"An error occurred during logout: {e}")
 
+async def handle_coursehero_download_via_api(link):
+    """
+    Handles downloading a CourseHero document by making a direct API request URL 
+    within the active logged-in session in the VM and monitoring the download folder.
+    """
+    try:
+        # Extract the document ID based on known URL patterns
+        document_id = None
+        match_id_standard = re.search(r'/file/(\d+)', link)
+        if match_id_standard:
+            document_id = match_id_standard.group(1)
+        else:
+            # Handle fallback or non-standard URL patterns by using the VM-based download method
+            print("Fallback to browser-based unlocking for non-standard ID links.")
+            return await handle_coursehero_download_via_vm(link)
+        
+        if not document_id:
+            print("Error: Could not extract document ID.")
+            return None
+
+        # Construct API URL for direct downloading
+        api_url = f'https://www.coursehero.com/api/v1/documents/unlock-and-download/{document_id}/'
+
+        # Open the API URL in the browser within the VM (already logged in)
+        await open_url_non_blocking(api_url)
+        await asyncio.sleep(1)  # Allow a short delay for the browser to start the download
+
+        # Define the download folder path and polling duration
+        download_folder = "C:\\Users\\MCBat\\Downloads"
+        polling_interval = 1  # Check every 1 second
+        max_attempts = 30  # Maximum number of attempts (30 seconds in total)
+
+        # Search for the downloaded file in the folder
+        for attempt in range(max_attempts):
+            downloaded_files = glob.glob(os.path.join(download_folder, "*"))
+            downloaded_files = [file for file in downloaded_files if os.path.isfile(file)]
+            if downloaded_files:
+                latest_file = max(downloaded_files, key=os.path.getmtime)
+                if not latest_file.endswith('.crdownload'):  # Check if the file is fully downloaded
+                    print(f"Successfully downloaded {latest_file}.")
+                    close_tab()  # Close the browser tab once the file is found
+                    return latest_file
+            await asyncio.sleep(polling_interval)
+
+        print("Error: No downloaded file found within the time limit.")
+        close_tab()
+        return None
+
+    except Exception as e:
+        print(f"An error occurred during CourseHero document download via API: {e}")
+        close_tab()
+        return None
+
 async def handle_coursehero_download_via_vm(link):
     """
     Handles downloading a CourseHero document by interacting with the already open and logged-in browser session on the VM.
@@ -634,8 +687,8 @@ async def process_queue():
             for url in url_list:
                 try:
                     if 'coursehero.com/file' in url:
-                        # Handle CourseHero download process via VM
-                        downloaded_file = await handle_coursehero_download_via_vm(url)
+                        # Handle CourseHero download process using the new API-based approach within the VM
+                        downloaded_file = await handle_coursehero_download_via_api(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero document.")
                             try:
@@ -654,7 +707,7 @@ async def process_queue():
                         os.remove(downloaded_file)
 
                     elif 'tutors-problems' in url or 'student-questions' in url:
-                        # Handle CourseHero Tutor question download process via VM
+                        # For now, use the existing VM-based logic until API-based handling is implemented for tutor problems
                         downloaded_file = await handle_coursehero_tutor_question_via_vm(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero Tutor question document.")
