@@ -210,12 +210,13 @@ async def handle_coursehero_download_via_api(link):
         # Extract the document ID based on known URL patterns
         document_id = None
         match_id_standard = re.search(r'/file/(\d+)', link)
+        
         if match_id_standard:
             document_id = match_id_standard.group(1)
         else:
-            # Handle fallback or non-standard URL patterns by using the VM-based download method
-            print("Fallback to browser-based unlocking for non-standard ID links.")
-            return await handle_coursehero_download_via_vm(link)
+            # If document ID isn't visible, fallback to regular download method
+            print("No visible document ID found, falling back to handle_coursehero_download.")
+            return await handle_coursehero_download(link, download_button_path, tripledot_redownload_button_path, download_redownload_button_path)
         
         if not document_id:
             print("Error: Could not extract document ID.")
@@ -241,7 +242,7 @@ async def handle_coursehero_download_via_api(link):
                 latest_file = max(downloaded_files, key=os.path.getmtime)
                 if not latest_file.endswith('.crdownload'):  # Check if the file is fully downloaded
                     print(f"Successfully downloaded {latest_file}.")
-                    close_tab()  # Close the browser tab once the file is found
+                    #close_tab()  # Close the browser tab once the file is found
                     return latest_file
             await asyncio.sleep(polling_interval)
 
@@ -252,6 +253,50 @@ async def handle_coursehero_download_via_api(link):
     except Exception as e:
         print(f"An error occurred during CourseHero document download via API: {e}")
         close_tab()
+        return None
+
+async def handle_coursehero_tutor_question_via_api(link):
+    """
+    Handles downloading a CourseHero Tutor question using the API URL format.
+    Avoids clicking the unlock button and directly navigates to the unlock API URL.
+    """
+    try:
+        # Extract the question ID based on known URL patterns
+        question_id = None
+        match_id_standard = re.search(r'/tutors-problems/[\w-]+/(\d+)', link)
+        
+        if match_id_standard:
+            question_id = match_id_standard.group(1)
+        else:
+            print("Error: Could not extract question ID.")
+            return None
+
+        # Construct API URL for unlocking the tutor question
+        api_url = f'https://www.coursehero.com/unlock-question/{question_id}/'
+
+        # Open the API URL in the browser within the VM (already logged in)
+        await open_url_non_blocking(api_url)
+        await asyncio.sleep(7)  # Wait for 7 seconds to allow unlocking
+
+        # Attempt to locate and click the HTML download button
+        if click_button(html_download_button_path, "HTML Download Button", confidence=0.9):
+            await asyncio.sleep(12)  # Wait for download completion
+
+            # Confirm the download has been saved
+            download_folder = "C:\\Users\\MCBat\\Downloads"
+            downloaded_file = await wait_for_downloaded_file(download_folder)
+            if downloaded_file:
+                print(f"Successfully downloaded {downloaded_file}.")
+                return downloaded_file
+            else:
+                print("Error: File download did not complete.")
+        else:
+            print("Error: Could not find the HTML download button.")
+
+        return None
+
+    except Exception as e:
+        print(f"An error occurred during CourseHero Tutor question download via API: {e}")
         return None
 
 async def handle_coursehero_download_via_vm(link):
@@ -687,7 +732,7 @@ async def process_queue():
             for url in url_list:
                 try:
                     if 'coursehero.com/file' in url:
-                        # Handle CourseHero download process using the new API-based approach within the VM
+                        # Handle CourseHero download process using the API-based approach within the VM
                         downloaded_file = await handle_coursehero_download_via_api(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero document.")
@@ -707,8 +752,8 @@ async def process_queue():
                         os.remove(downloaded_file)
 
                     elif 'tutors-problems' in url or 'student-questions' in url:
-                        # For now, use the existing VM-based logic until API-based handling is implemented for tutor problems
-                        downloaded_file = await handle_coursehero_tutor_question_via_vm(url)
+                        # Handle CourseHero Tutor question using the API-based approach
+                        downloaded_file = await handle_coursehero_tutor_question_via_api(url)
                         if not downloaded_file:
                             await message.channel.send("Failed to download the CourseHero Tutor question document.")
                             try:
